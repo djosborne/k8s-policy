@@ -305,8 +305,11 @@ class Controller(object):
 
                 # Start a watch from the latest resource_version.
                 self._watch_resource(resource_type, resource_version)
-            except requests.ConnectionError, requests.ChunkedEncodingError:
+            except requests.ConnectionError as e:
                 _log.exception("Connection error querying: %s", resource_type)
+                import pdb
+                pdb.set_trace()
+
             except requests.HTTPError:
                 _log.exception("HTTP error querying: %s", resource_type)
             except KubernetesApiError:
@@ -314,7 +317,7 @@ class Controller(object):
             except Queue.Full:
                 _log.exception("Event queue full")
             except Exception:
-                _log.exception("Unahandled exception killed %s manager", resource_type)
+                _log.exception("Unhandled exception killed %s manager", resource_type)
             finally:
                 # Sleep for a second so that we don't tight-loop.
                 _log.warning("Re-starting watch on resource: %s",
@@ -504,6 +507,12 @@ if __name__ == '__main__':
     stdout_hdlr.setFormatter(formatter)
     _log.addHandler(stdout_hdlr)
     _log.setLevel(log_level)
+
+    # urllib logging
+    urllogger = logging.getLogger("requests.packages.urllib3")
+    urllogger.setLevel(logging.DEBUG)
+    urllogger.addHandler(stdout_hdlr)
+
 
     if os.environ.get("CONFIGURE_ETC_HOSTS", "false").lower() == "true":
         # Configure /etc/hosts with Kubernetes API.
