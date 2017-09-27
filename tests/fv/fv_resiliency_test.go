@@ -105,8 +105,11 @@ var _ = Describe("[Resilience] PolicyController", func() {
 	})
 
 	AfterEach(func() {
-		calicoEtcd.Stop()
+		// Check that policy controller did not crash during test
+		Expect(policyController.Stopped()).To(BeFalse())
+
 		policyController.Stop()
+		calicoEtcd.Stop()
 		k8sEtcd.Stop()
 		apiserver.Stop()
 	})

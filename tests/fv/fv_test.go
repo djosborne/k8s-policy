@@ -76,6 +76,8 @@ var _ = Describe("PolicyController", func() {
 	})
 
 	AfterEach(func() {
+		// Check that policy controller did not crash during test
+		Expect(policyController.Stopped()).To(BeFalse())
 		policyController.Stop()
 		etcd.Stop()
 		apiserver.Stop()
