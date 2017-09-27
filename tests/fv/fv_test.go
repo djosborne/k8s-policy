@@ -48,7 +48,7 @@ var _ = Describe("PolicyController", func() {
 
 	BeforeEach(func() {
 		// Run etcd.
-		etcd = testutils.RunEtcd()
+		etcd = containers.RunEtcd()
 		calicoClient = testutils.GetCalicoClient(etcd.IP)
 		err := calicoClient.EnsureInitialized()
 		Expect(err).NotTo(HaveOccurred())
@@ -73,6 +73,12 @@ var _ = Describe("PolicyController", func() {
 
 		// TODO: Use upcoming port checker functions to wait until apiserver is responding to requests.
 		time.Sleep(time.Second * 15)
+	})
+
+	AfterEach(func() {
+		policyController.Stop()
+		etcd.Stop()
+		apiserver.Stop()
 	})
 
 	Context("profiles", func() {

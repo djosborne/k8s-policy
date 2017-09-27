@@ -62,13 +62,6 @@ func RunK8sApiserver(etcdIp string) *containers.Container {
 	)
 }
 
-func RunEtcd() *containers.Container {
-	return containers.Run("etcd-fv",
-		fmt.Sprintf("%s",os.Getenv("ETCD_IMAGE")),
-		"etcd",
-		"--advertise-client-urls", "http://127.0.0.1:2379",
-		"--listen-client-urls", "http://0.0.0.0:2379")
-}
 
 func GetCalicoClient(etcdIP string) *client.Client {
 	client, err := client.New(api.CalicoAPIConfig{

@@ -48,13 +48,13 @@ var _ = Describe("[Resilience] PolicyController", func() {
 
 	BeforeEach(func() {
 		// Run etcd.
-		calicoEtcd = testutils.RunEtcd()
+		calicoEtcd = containers.RunEtcd()
 		calicoClient = testutils.GetCalicoClient(calicoEtcd.IP)
 		err := calicoClient.EnsureInitialized()
 		Expect(err).NotTo(HaveOccurred())
 
 		// Run apiserver.
-		k8sEtcd = testutils.RunEtcd()
+		k8sEtcd = containers.RunEtcd()
 		apiserver = testutils.RunK8sApiserver(k8sEtcd.IP)
 
 		// Write out a kubeconfig file
@@ -103,6 +103,14 @@ var _ = Describe("[Resilience] PolicyController", func() {
 			return policy
 		}).ShouldNot(BeNil())
 	})
+
+	AfterEach(func() {
+		calicoEtcd.Stop()
+		policyController.Stop()
+		k8sEtcd.Stop()
+		apiserver.Stop()
+	})
+
 	Context("when apiserver goes down momentarily and data is removed from calico's etcd", func() {
 		It("should eventually add the data to calico's etcd", func() {
 			testutils.Stop(apiserver)
