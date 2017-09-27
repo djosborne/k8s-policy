@@ -24,6 +24,15 @@ import (
 	"github.com/projectcalico/felix/fv/containers"
 )
 
+var policyCtrlImage string
+
+func init() {
+	policyCtrlImage  = os.Getenv("CONTAINER_NAME")
+	if policyCtrlImage == "" {
+		policyCtrlImage = "calico/kube-policy-controller"
+	}
+}
+
 func RunPolicyController(etcdIP, kconfigfile string) *containers.Container {
 	return containers.Run("calico-policy-controller",
 		"--privileged",
@@ -33,5 +42,5 @@ func RunPolicyController(etcdIP, kconfigfile string) *containers.Container {
 		"-e", fmt.Sprintf("KUBECONFIG=%s", kconfigfile),
 		"-e", "RECONCILER_PERIOD=10s",
 		"-v", fmt.Sprintf("%s:%s", kconfigfile, kconfigfile),
-		fmt.Sprintf("%s",os.Getenv("CONTAINER_NAME")))
+		fmt.Sprintf("%s", policyCtrlImage))
 }

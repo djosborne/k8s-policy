@@ -50,9 +50,19 @@ contexts:
     user: calico
 current-context: test-context`
 
+var hyperkubeImage string
+
+func init() {
+	hyperkubeImage = os.Getenv("HYPERKUBE_IMAGE")
+	if hyperkubeImage == "" {
+		hyperkubeImage = "gcr.io/google_containers/hyperkube-amd64:v1.8.0-beta.1"
+	}
+}
+
+
 func RunK8sApiserver(etcdIp string) *containers.Container {
 	return containers.Run("st-apiserver",
-		fmt.Sprintf("%s",os.Getenv("HYPERKUBE_IMAGE")),
+		fmt.Sprintf("%s", hyperkubeImage),
 		"/hyperkube", "apiserver",
 		"--service-cluster-ip-range=10.101.0.0/16",
 		"--authorization-mode=AlwaysAllow",
