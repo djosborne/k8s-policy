@@ -75,16 +75,14 @@ func NewNodeController(k8sClientset *kubernetes.Clientset, calicoClient *client.
 			for _, calicoNode := range calicoNodes.Items {
 				// find its kubernetes orchRef
 				k8sNodeName := getK8sNodeRef(calicoNode)
-				if err != nil {
-					m[k8sNodeName] = calicoNode.Metadata.Name
-				}
+				m[k8sNodeName] = calicoNode.Metadata.Name
 			}
 
-			log.Debugf("Found %d nodes in Calico datastore:", len(m))
+			log.Debugf("Found %d nodes in Calico datastore:", len(calicoNodes.Items))
 			return m, nil
 		},
 		ReconcilerConfig: calicocache.ReconcilerConfig{
-			DisableMissingInDatastore: true,
+			DisableMissingInDatastore: false,
 			DisableMissingInCache: false,
 			DisableUpdateOnChange: false,
 		},
@@ -106,6 +104,7 @@ func NewNodeController(k8sClientset *kubernetes.Clientset, calicoClient *client.
 			}
 			log.Debugf("Got DELETE event for node: %s", nodeName)
 			k8sResourceCache.Delete(nodeName)
+			delete(nodeLookupCache.nodes, nodeName)
 		},
 
 		AddFunc: func(obj interface{}) {
@@ -118,6 +117,7 @@ func NewNodeController(k8sClientset *kubernetes.Clientset, calicoClient *client.
 			// so there's no other relevant information we want to store in the cache besides the name (which
 			// is unavailable at this time because the calicoNode is created after the k8sNode).
 			k8sResourceCache.Set(nodeName, "")
+
 		},
 	}, corecache.Indexers{})
 

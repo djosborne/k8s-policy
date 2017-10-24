@@ -1,5 +1,5 @@
-hash: 5e86c6a9ffed92b1dfd1a7701551186ba60bdc58c96e84bb66d12b7c1f329e7f
-updated: 2017-10-23T13:37:26.04054536-07:00
+hash: 2b90e967bc205476b496d20e36beb15f0ea446351f1ea74ad9626d9700db7b48
+updated: 2017-10-24T11:23:18.570877139-07:00
 imports:
 - name: cloud.google.com/go
   version: 3b1ae45394a234c385be014e9a488f2bb6eef821
@@ -134,8 +134,8 @@ imports:
 - name: github.com/patrickmn/go-cache
   version: a3647f8e31d79543b2d0f0ae2fe5c379d72cedc0
 - name: github.com/projectcalico/felix
-  version: 0159d8e7fb49bc2cc72a0a52c33ac70566890e1c
-  repo: https://github.com/ozdanborne/felix
+  version: 93df1d9d1a2870805cb7600edc9dbb86ecefdea9
+  repo: https://github.com/projectcalico/felix
   subpackages:
   - fv
   - fv.containers

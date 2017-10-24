@@ -29,6 +29,7 @@ import (
 	. "github.com/onsi/gomega"
 
 	"github.com/projectcalico/k8s-policy/tests/testutils"
+	log "github.com/sirupsen/logrus"
 
 	"github.com/projectcalico/felix/fv/containers"
 	"github.com/projectcalico/libcalico-go/lib/api"
@@ -103,6 +104,35 @@ var _ = Describe("PolicyController", func() {
 			}
 			_, err = calicoClient.Nodes().Create(cn)
 			Expect(err).NotTo(HaveOccurred())
+
+			k8sClient.CoreV1().Nodes().Delete("k8snode", &metav1.DeleteOptions{})
+			Eventually(func() *api.Node {
+				node, _ := calicoClient.Nodes().Get(api.NodeMetadata{Name: "calnode"})
+				return node
+			}, time.Second*15, 500*time.Millisecond).Should(BeNil())
+		})
+
+		It("should be removed if they reference a k8sNode that doesn't exist", func() {
+			cn := &api.Node{
+				Metadata: api.NodeMetadata{
+					Name: "calnode",
+				},
+				Spec: api.NodeSpec{
+					OrchRefs: []api.OrchRef{
+						{
+							NodeName: "k8sfakenode",
+							Orchestrator: "k8s",
+						},
+					},
+				},
+			}
+			_, err := calicoClient.Nodes().Create(cn)
+			Expect(err).NotTo(HaveOccurred())
+
+			nodes, err := calicoClient.Nodes().List(api.NodeMetadata{})
+			log.Infof("Nodes: %v", nodes)
+
+			time.Sleep(120*time.Minute)
 
 			k8sClient.CoreV1().Nodes().Delete("k8snode", &metav1.DeleteOptions{})
 			Eventually(func() *api.Node {
